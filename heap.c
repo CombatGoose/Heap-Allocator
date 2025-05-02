@@ -4,14 +4,31 @@
 #include "heap.h"
 #include "linkedList.c"
 
-static Block *memory_remember = NULL;
-static Block *free_list = NULL;
+struct Block *memory_remember = NULL;
+struct Block *free_list = NULL;
 
 #define MAX_SIZE (1024 * 128) // 128 KB
 
 void* heap_alloc(size_t size)
 {
     if (size == 0) return NULL;
+    printf("size: %d\n", size);
+    if (size <= MAX_SIZE) {
+        struct Block *temp = free_list;
+        print_node(free_list);
+        while (temp != NULL) {
+            printf("first bober");
+            if (temp->size >= size) { // first-fit
+                struct Block* saved = temp;
+                delete_node(&free_list, temp);
+                printf("bober");
+                print_node(free_list);
+
+                return (void*)saved;
+            }
+            temp = temp->next;
+        }
+    }
 
     struct Block *chunk;
 
@@ -53,16 +70,6 @@ void heap_free(void* ptr)
             printf("Memory deallocated using munmap, chunk size: %zu bytes\n", chunk->size);
         }
     } else {
-        // add new el to free_list
+        append(&free_list, chunk->size); // appending new el to free list
     }
-
-    /*Block *temp = memory_remember;
-    while(temp->next != ptr) {
-        temp = temp->next;
-    }
-    
-    if (temp->size > MAX_SIZE) {
-
-    }*/
-
 }

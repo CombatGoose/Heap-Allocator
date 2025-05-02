@@ -17,7 +17,7 @@ void append(Block** head, int size)
     Block *newNode = init_node(size);
     if (!newNode) return;
 
-    if (*head == NULL) { // there are any elements in linked list
+    if (*head == NULL) { // there arent any elements in linked list
         *head = newNode;
         return;
     }
@@ -27,6 +27,21 @@ void append(Block** head, int size)
         temp = temp->next;
     }
     temp->next = newNode;
+}
+
+void delete_node(Block** head, Block* ptr)
+{
+    if (*head == ptr) { // deleting first el
+        *head = (*head)->next;
+        return;
+    }
+
+    struct Block* temp = *head;
+    while (temp->next != ptr) {
+        temp = temp->next;
+    }
+
+    temp->next = ptr->next;
 }
 
 void print_node(Block* head)

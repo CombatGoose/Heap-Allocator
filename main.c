@@ -16,6 +16,7 @@ int main(void)
     scanf("%c", &c);
 
     int* second_arr = (int*)heap_alloc(5 * sizeof(int));
+    int* third_arr = (int*)heap_alloc(5 * sizeof(int));
 
     /*for (int i = 0; i < SIZE; i++) {
         arr[i] = i + 1;
