@@ -4,8 +4,8 @@
 #include "heap.h"
 #include "linkedList.c"
 
-struct Block *memory_remember = NULL;
-struct Block *free_list = NULL;
+//Block *memory_remember = NULL;
+Block *free_list = NULL;
 
 #define MAX_SIZE (1024 * 128) // 128 KB
 
@@ -13,45 +13,44 @@ void* heap_alloc(size_t size)
 {
     if (size == 0) return NULL;
     printf("size: %d\n", size);
-    if (size <= MAX_SIZE) {
-        struct Block *temp = free_list;
-        print_node(free_list);
+    if (size <= MAX_SIZE && free_list != NULL) {
+        Block *temp = free_list;
         while (temp != NULL) {
-            printf("first bober");
             if (temp->size >= size) { // first-fit
-                struct Block* saved = temp;
+                Block* saved = temp;
                 delete_node(&free_list, temp);
-                printf("bober");
-                print_node(free_list);
-
-                return (void*)saved;
+                printf("Memory was succesfully allocated from free list");
+                return (void*)saved + 1;
             }
             temp = temp->next;
         }
     }
 
-    struct Block *chunk;
+    Block *chunk;
 
     if (size >= MAX_SIZE) {
-        chunk = (struct Block*)mmap(NULL, size + sizeof(struct Block),
+        chunk = (Block*)mmap(NULL, size + sizeof(Block),
                                                 PROT_READ | PROT_WRITE,
                                                 MAP_PRIVATE | MAP_ANONYMOUS,
                                                 -1, 0);
         if (chunk == MAP_FAILED) return NULL;
         printf("Memory was succesfully allocated using mmap\n");
     } else {
-        chunk = (struct Block*)sbrk(size + sizeof(struct Block));
+        chunk = (Block*)sbrk(size + sizeof(Block));
         if (chunk == (void*)-1) {
             return NULL;
         }
 
-        append(&memory_remember, size);
+        //append(&memory_remember, size);
     }
+
+    chunk->size = size;
+    chunk->next = NULL;
     
     printf("Chunk has been created succesfully:\n");
-    print_node(memory_remember);
+    //print_node(memory_remember);
 
-    return (void*)chunk; // returning pointer on memory chunk (sbrk and mmap return it)
+    return (void*)(chunk + 1); // returning pointer on memory chunk (sbrk and mmap return it)
 }
 
 void heap_free(void* ptr)
@@ -61,7 +60,9 @@ void heap_free(void* ptr)
         return;
     }
 
-    struct Block *chunk = (struct Block*)((char*)ptr - sizeof(struct Block));
+    Block *chunk = (Block*)ptr - 1;
+    printf("Chunk (free):\n");
+    print_node(chunk);
 
     if (chunk->size >= MAX_SIZE) {
         if (munmap(chunk, chunk->size + sizeof(struct Block)) == 1) {

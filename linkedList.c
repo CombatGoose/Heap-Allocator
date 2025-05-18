@@ -2,7 +2,7 @@
 
 Block* init_node(int size)
 {
-    Block* newNode = (Block*)sbrk(sizeof(Block*));
+    Block* newNode = (Block*)sbrk(sizeof(Block));
     if (!newNode) {
         printf("Error has been occured during memory allocation for Node");
         return NULL;
@@ -36,7 +36,7 @@ void delete_node(Block** head, Block* ptr)
         return;
     }
 
-    struct Block* temp = *head;
+    Block* temp = *head;
     while (temp->next != ptr) {
         temp = temp->next;
     }
